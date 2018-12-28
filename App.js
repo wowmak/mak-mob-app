@@ -6,7 +6,7 @@ export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>WoMak is here to serve you !!</Text>
+        <Text style={{fontWeight:'bold'}}>WowMak : Your trusted mechanic !!</Text>
         <Signon></Signon>
       </View>
 
