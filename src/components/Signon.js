@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Alert, StyleSheet, TextInput, Text, View, Button } from 'react-native';
+import { Alert, StyleSheet, TextInput, Text, View, Button, Image } from 'react-native';
 import t from '../../node_modules/tcomb-form-native/index.js'
+import { createStackNavigator, createAppContainer } from "react-navigation";
+import HomeScreen from './HomeScreen.js'
 
 const Form = t.form.Form;
 
@@ -34,7 +36,7 @@ const formStyles = {
   }
 }
 
-const options = {
+let options = {
   auto: 'placeholders',
   fields: {
     email: {
@@ -76,22 +78,86 @@ const options = {
 });*/
 
 class Signon extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      status: 'initiated',
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
   handleSubmit = () => {
     const value = this._form.getValue();
     console.log('value: ', value);
+    fetch('http://192.168.1.12:9002/register', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: value.email,
+        password: value.password,
+        mobile: value.mobileNo
+      }),
+    }).then(response => {
+      if (response.status === 200) {
+        this.handleLogin();
+        this.setState({ status: 'success' });
+      } else {
+        this.setState({ status: 'failure' });
+        throw new Error('Something went wrong, Please login again!');
+      }
+    })
+      .catch((error) => {
+        console.error("Exception is here:" + error);
+      });
   }
-  
+
+
+  handleLogin = () => {
+    console.log("Handling Login Process");
+    const value = this._form.getValue();
+    console.log('value: ', value);
+    fetch('http://192.168.1.12:9002/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: value.email,
+        password: value.password,
+      }),
+    }).then(response => {
+      if (response.status === 200) {
+        Alert.alert("Login Succesful." + response.headers.get('Authorization'));
+        this.props.navigation.navigate('Home');
+      } else {
+        this.setState({ status: 'failure' });
+        throw new Error('Something went wrong, Please login again!');
+      }
+    })
+      .catch((error) => {
+        console.error("Exception is here:" + error);
+      });
+  }
+
+
   render() {
     return (
       <View style={styles.container}>
-        <Form 
+      <Image source={require('../../assets/img/Clogo.png')} style={{width: 250, height: 250}}  />
+        <Form
           ref={c => this._form = c}
-          type={User} 
+          type={User}
           options={options}
         />
-        <Button style={{backgroundColor: '#ffff99'}}
+        <Button style={{ backgroundColor: '#ffff99' }}
           title="Sign Up!"
           onPress={this.handleSubmit}
+        // onPress={() => this.props.navigation.navigate('Home')}
         />
       </View>
     );
@@ -106,7 +172,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff4d4d',
   },
 });
-module.exports = Signon;
+//module.exports = Signon;
+const AppNavigator = createStackNavigator(
+  {
+    Signon: Signon,
+    Home: HomeScreen
+  },
+  {
+    initialRouteName: "Signon"
+  }
+);
+
+export default createAppContainer(AppNavigator);
+
   /*constructor(props) {
     super(props);
     this.state = {
