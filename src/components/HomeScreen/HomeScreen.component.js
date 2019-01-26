@@ -1,32 +1,16 @@
 import React from "react";
 import { View, Text, AsyncStorage, StyleSheet, Image } from "react-native";
+import {GetUser_URL} from '../../config/api.config.js';
+import {styles} from './HomeScreen.component.style';
+
 
 const STORAGE_KEY = 'SECRET';
 
-const styles = StyleSheet.create({
-  container: {
-    flex:1,
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: '#ff4d4d',
-  },
-
-  childcontainer: {
-    flex:1,
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: '#ff4d4d',
-  }
-});
-
 class HomeScreen extends React.Component {
-
+  static navigationOptions = {
+    title: 'Home',
+    /* No more header config here! */
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +23,7 @@ class HomeScreen extends React.Component {
   console.log('Component Mount');
   this._retrieveData().then((token) => {
     //this callback is executed when your Promise is resolved
-    fetch('http://192.168.43.12:9002/user', {
+    fetch(GetUser_URL, {
       method: 'GET',
       headers: {
         'Authorization': token,
@@ -79,10 +63,7 @@ _retrieveData = async () => {
     // Error retrieving data
   }
   
-}
-
-getData =  () => AsyncStorage.getItem('STORAGE_KEY').then((value) => this.setState({ 'secretToken': value }));
-  
+}  
 
 
   render() {
@@ -90,8 +71,8 @@ getData =  () => AsyncStorage.getItem('STORAGE_KEY').then((value) => this.setSta
       <View style={styles.container}>
         <Text>{this.state.user}</Text>
         <View style={styles.childcontainer}>
-        <Image source={require('../../assets/img/Clogo.png')} style={{ width: 150, height: 100 }} />
-        <Image source={require('../../assets/img/Clogo.png')} style={{ width: 150, height: 100 }} />
+        <Image source={require('../../../assets/img/Clogo.png')} style={{ width: 150, height: 100 }} />
+        <Image source={require('../../../assets/img/Clogo.png')} style={{ width: 150, height: 100 }} />
         </View>
       </View>
     );

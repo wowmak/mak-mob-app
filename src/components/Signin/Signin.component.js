@@ -1,12 +1,21 @@
 import React, { Component } from 'react';
-import { Alert, StyleSheet, TextInput, Text, View, Button, Image, AsyncStorage } from 'react-native';
-import t from '../../node_modules/tcomb-form-native/index.js'
+import { Alert,Text, View, Button, Image, AsyncStorage } from 'react-native';
+import t from '../../../node_modules/tcomb-form-native/index.js'
+import {Signin_URL} from '../../config/api.config';
+import {styles} from './Signin.component.style';
+
 
 const Form = t.form.Form;
 const STORAGE_KEY = 'SECRET';
 
+const Email = t.refinement(t.String, email => {
+  const reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/; //or any other regexp
+  return reg.test(email);
+});
+
+
 const User = t.struct({
-  email: t.String,
+  email: Email,
   password: t.String
 });
 
@@ -52,6 +61,10 @@ let options = {
 
 class Signin extends Component {
 
+  static navigationOptions = {
+    title: 'SignIn',
+    /* No more header config here! */
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -64,7 +77,8 @@ class Signin extends Component {
     console.log("Handling Login Process");
     const value = this._form.getValue();
     console.log('value: ', value);
-    fetch('http://192.168.43.12:9002/login', {
+    if(value){
+    fetch(Signin_URL, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -76,7 +90,6 @@ class Signin extends Component {
       }),
     }).then(response => {
       if (response.status === 200) {
-        // Alert.alert("Login Succesful." + response.headers.get('Authorization'));
         AsyncStorage.setItem(STORAGE_KEY, response.headers.get('Authorization'));
 
         console.log(response.headers.get('Authorization'));
@@ -90,8 +103,12 @@ class Signin extends Component {
       }
     })
       .catch((error) => {
-        console.error("Exception is here:" + error);
+       Alert.alert("Invalid Credentials");
       });
+    }
+    else{
+      Alert.alert("Input values as required");
+    }
   }
   save = async () => {
     try {
@@ -107,7 +124,7 @@ class Signin extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Image source={require('../../assets/img/Clogo.png')} style={{ width: 250, height: 250 }} />
+        <Image source={require('../../../assets/img/Clogo.png')} style={{ width: 250, height: 250 }} />
         <Form
           ref={c => this._form = c}
           type={User}
@@ -125,15 +142,7 @@ class Signin extends Component {
     );
   }
 }
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'stretch',
-    justifyContent: 'center',
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: 'blue',
-  },
-});
+
 module.exports = Signin;
 
  

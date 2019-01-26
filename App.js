@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 // import Signon from './src/components/Signon.js'
-import AppNavigator from './src/components/Appnavigator.js'
+import AppNavigator from './src/routes/Appnavigator'
 import {  createAppContainer } from "react-navigation";
 
 const AppContainer = createAppContainer(AppNavigator);

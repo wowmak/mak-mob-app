@@ -1,14 +1,28 @@
 import React, { Component } from 'react';
-import { Alert, StyleSheet, TextInput, Text, View, Button, Image, AsyncStorage } from 'react-native';
-import t from '../../node_modules/tcomb-form-native/index.js'
+import { Alert, StyleSheet, Text, View, Button, Image, AsyncStorage } from 'react-native';
+import t from '../../../node_modules/tcomb-form-native/index.js';
+import {Signup_URL,Signin_URL} from '../../config/api.config';
+import {styles} from './Signon.component.style';
+
+
 
 const Form = t.form.Form;
 const STORAGE_KEY = 'SECRET';
 
+const Email = t.refinement(t.String, email => {
+  const reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/; //or any other regexp
+  return reg.test(email);
+});
+const MobileNo = t.refinement(t.Number, mobileNo => {
+  const reg = /^\d{10}$/;
+  return reg.test(mobileNo);
+});
+
+
 const User = t.struct({
-  email: t.String,
+  email: Email,
   password: t.String,
-  mobileNo: t.Number
+  mobileNo: MobileNo
 });
 
 const formStyles = {
@@ -57,6 +71,10 @@ let options = {
 
 
 class Signon extends Component {
+  static navigationOptions = {
+    title: 'SignUp',
+    /* No more header config here! */
+  };
 
   constructor(props) {
     super(props);
@@ -68,8 +86,11 @@ class Signon extends Component {
 
   handleSubmit = () => {
     const value = this._form.getValue();
+    if(value)
+    {
     console.log('value: ', value);
-    fetch('http://192.168.43.12:9002/register', {
+    console.log('Signup_URL:'+Signup_URL);
+    fetch(Signup_URL, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -91,8 +112,13 @@ class Signon extends Component {
       }
     })
       .catch((error) => {
-        console.error("Exception is here:" + error);
+        console.log("Exception is here:" + error);
+        Alert.alert("Technical Error Occured, Please try again later");
       });
+    }
+    else{
+      Alert.alert("Input values as required");
+    }
   }
 
 
@@ -100,7 +126,7 @@ class Signon extends Component {
     console.log("Handling Login Process");
     const value = this._form.getValue();
     console.log('value: ', value);
-    fetch('http://192.168.43.12:9002/login', {
+    fetch(Signin_URL, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -142,7 +168,7 @@ class Signon extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Image source={require('../../assets/img/Clogo.png')} style={{ width: 250, height: 250 }} />
+        <Image source={require('../../../assets/img/Clogo.png')} style={{ width: 250, height: 250 }} />
         <Form
           ref={c => this._form = c}
           type={User}
@@ -161,16 +187,7 @@ class Signon extends Component {
     );
   }
 }
-const styles = StyleSheet.create({
-  container: {
-    flex:1,
-    alignItems: 'stretch',
-    justifyContent: 'center',
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: '#ff4d4d',
-  },
-});
+
 module.exports = Signon;
 
 
