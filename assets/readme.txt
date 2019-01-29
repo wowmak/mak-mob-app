@@ -4,4 +4,6 @@ Installed Dependencies:
     https://www.npmjs.com/package/tcomb-form-native
 
 npm install --save react-navigation
+npm install react-native-datepicker --save
+
 
